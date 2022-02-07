@@ -2,6 +2,7 @@ import './App.css';
 
 import { useEffect, useState } from 'react';
 
+import CustomEntry from './components/CustomEntry';
 import PossibleWords from './components/PossibleWords';
 import Words from './components/Words';
 import { calculatePossibleWords } from './services/brain';
@@ -36,7 +37,7 @@ export class Word{
 }
 
 function App() {
-  const [words, setWords] = useState<Word[]>([new Word('booty'), new Word('party')]);
+  const [words, setWords] = useState<Word[]>([]);
   const [possibleWords, setPossibleWords] = useState<string[]>([]);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ function App() {
   return (
     <div className="App">
       <Words updateWords={(newWords: Word[]) => setWords(newWords)} words={words}/>
+      <CustomEntry addWord={(word: string) => setWords([...words, new Word(word)])}/>
       <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={possibleWords} />
     </div>
   );

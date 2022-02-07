@@ -62,5 +62,7 @@ export function calculatePossibleWords(words: Word[]){
     return true;
   });
 
+  returnList = _.take(returnList, 15);
+
   return returnList
 }
