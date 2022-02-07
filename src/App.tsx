@@ -50,6 +50,7 @@ function App() {
       <Words updateWords={(newWords: Word[]) => setWords(newWords)} words={words}/>
       <CustomEntry addWord={(word: string) => setWords([...words, new Word(word)])}/>
       <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={possibleWords} />
+      <button onClick={() => {setWords([])}}>reset</button>
     </div>
   );
 }
