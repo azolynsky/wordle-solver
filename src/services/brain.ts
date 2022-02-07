@@ -65,29 +65,50 @@ export function calculatePossibleWords(words: Word[]){
 }
 
 type WeightedAlphabet = WeightedLetter[]
+type WeightedMatrix = WeightedAlphabet[]
 
 type WeightedLetter = {
   letter: string,
   weight: number,
 }
 
-function weighAlphabet(words: string[]): WeightedAlphabet{
-  let weightedAlphabet: WeightedAlphabet = [];
-  const conjoinedWords = words.join('');
+function weighMatrix(words: string[]): WeightedMatrix{
+  let weightedMatrix: WeightedMatrix = [[],[],[],[],[]];
 
-  _.forEach(conjoinedWords, l => {
-    let alphabetLetter = _.find(weightedAlphabet, alphabetLetter => alphabetLetter.letter === l);
-    if (alphabetLetter === undefined){
-      weightedAlphabet = [...weightedAlphabet, {letter: l, weight: 1} as WeightedLetter];
-    }
-    else {
-      let alphabetLetter = _.find(weightedAlphabet, alphabetLetter => alphabetLetter.letter === l)
-      if (alphabetLetter) alphabetLetter.weight++;
-    }
+  _.forEach(words, word => {
+    _.forEach(word, (l, i) => {
+      let alphabetLetter = _.find(weightedMatrix[i], alphabetLetter => alphabetLetter.letter === l);
+      if (alphabetLetter === undefined){
+        weightedMatrix[i] = [...weightedMatrix[i], {letter: l, weight: 1} as WeightedLetter];
+      }
+      else {
+        let alphabetLetter = _.find(weightedMatrix[i], alphabetLetter => alphabetLetter.letter === l)
+        if (alphabetLetter) alphabetLetter.weight++;
+      }
+    })
+  
   })
 
   debugger;
-  return weightedAlphabet;
+  return weightedMatrix;
+}
+
+const convertMatrixToWeightedAlphabet = (matrix: WeightedMatrix) => {
+  let returnAlphabet = [] as WeightedAlphabet;
+  let concatenatedWeights = [...matrix[0], ...matrix[1], ...matrix[2], ...matrix[3], ...matrix[4]];
+
+
+  _.forEach(concatenatedWeights, matrixWeight => {
+    let alphabetWeight = _.find(returnAlphabet, alphabetWeight => alphabetWeight.letter === matrixWeight.letter)
+    if (!alphabetWeight){
+      returnAlphabet = [...returnAlphabet, matrixWeight];
+    }
+    else {
+      alphabetWeight.weight += matrixWeight.weight;
+    }
+  })
+
+  return returnAlphabet;
 }
 
 type WeightedWord = {
@@ -96,9 +117,10 @@ type WeightedWord = {
 }
 
 function weighWords(words: string[]): WeightedWord[]{
-  const weightedAlphabet = weighAlphabet(words);
+  const weightedMatrix = weighMatrix(words);
+  const weightedAlphabet = convertMatrixToWeightedAlphabet(weightedMatrix);
 
-  let returnArray: WeightedWord[] = []
+  let weightedWords: WeightedWord[] = []
 
   _.forEach(words, word => {
     let weightedWord: WeightedWord = {word: word, weight: 0}
@@ -107,11 +129,20 @@ function weighWords(words: string[]): WeightedWord[]{
 
     _.forEach(uniqWord, letter => {
       const alphabetLetter = _.find(weightedAlphabet, alphabetLetter => alphabetLetter.letter === letter)
-      if (alphabetLetter) weightedWord.weight += alphabetLetter.weight;
+      if (alphabetLetter) weightedWord.weight += (alphabetLetter.weight * 10);
     })
 
-    returnArray = [...returnArray, weightedWord]
+    weightedWords = [...weightedWords, weightedWord]
   });
 
-  return returnArray;
+  _.forEach(weightedWords, Word => {
+    Word.word.split('').forEach((letter, i) => {
+      const matrixLetterWeight = _.find(weightedMatrix[i], matrixWeight => matrixWeight.letter === letter)
+      if (matrixLetterWeight !== undefined){
+        Word.weight += matrixLetterWeight.weight;
+      }
+    })
+  })
+
+  return weightedWords;
 }
