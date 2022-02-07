@@ -5,10 +5,11 @@ type PossibleWordsProps = {
 
 const PossibleWords = ({words, onClick}: PossibleWordsProps) => {
   return (<div>
-    {words.map(w => <div style={{
+    {words.map(w => <><div style={{
       cursor: 'pointer',
       fontSize: 30,
-    }} onClick={() => onClick(w)}>{w}</div>)}  
+      display: 'inline-block',
+    }} onClick={() => onClick(w)}>{w}</div><br/></>)}  
   </div>);
 }
 

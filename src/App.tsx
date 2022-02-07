@@ -1,9 +1,10 @@
 import './App.css';
 
+import { useEffect, useState } from 'react';
+
 import PossibleWords from './components/PossibleWords';
 import Words from './components/Words';
-import { useState } from 'react';
-import wordList from '../public/wordList.json';
+import { calculatePossibleWords } from './services/brain';
 
 export enum LetterStatus{
   'undefined',
@@ -36,11 +37,17 @@ export class Word{
 
 function App() {
   const [words, setWords] = useState<Word[]>([new Word('booty'), new Word('party')]);
+  const [possibleWords, setPossibleWords] = useState<string[]>([]);
 
+  useEffect(() => {
+    setPossibleWords(calculatePossibleWords(words));
+
+  }, [words]);
+  
   return (
     <div className="App">
       <Words updateWords={(newWords: Word[]) => setWords(newWords)} words={words}/>
-      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={['hello', 'drips']} />
+      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={possibleWords} />
     </div>
   );
 }
