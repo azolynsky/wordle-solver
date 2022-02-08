@@ -39,7 +39,9 @@ export class Word{
 }
 
 function App() {
-  const [words, setWords] = useState<Word[]>([]);
+  const startingWords:Word[] = [new Word('arose')];
+
+  const [words, setWords] = useState<Word[]>(startingWords);
   const [possibleAnswers, setPossibleAnswers] = useState<string[]>([]);
   const [optimalAnswers, setOptimalAnswers] = useState<string[]>([]);
 
@@ -54,7 +56,7 @@ function App() {
       <CustomEntry addWord={(word: string) => setWords([...words, new Word(word)])}/>
       {possibleAnswers.length} possible answers
       <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={_.take(optimalAnswers, possibleAnswers.length <= 1 ? possibleAnswers.length : 5)} />
-      <button onClick={() => {setWords([])}}>reset</button>
+      <button onClick={() => {setWords(startingWords)}}>reset</button>
     </div>
   );
 }
