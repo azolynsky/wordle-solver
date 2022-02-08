@@ -6,7 +6,8 @@ import CustomEntry from './components/CustomEntry';
 import PossibleWords from './components/PossibleWords';
 import Words from './components/Words';
 import _ from 'lodash';
-import { calculatePossibleWords } from './services/brain';
+import { getOptimalAnswers } from './services/brain';
+import { getPossibleSolutions } from './services/solutionService';
 
 export enum LetterStatus{
   'undefined',
@@ -39,10 +40,12 @@ export class Word{
 
 function App() {
   const [words, setWords] = useState<Word[]>([]);
-  const [possibleWords, setPossibleWords] = useState<string[]>([]);
+  const [possibleAnswers, setPossibleAnswers] = useState<string[]>([]);
+  const [optimalAnswers, setOptimalAnswers] = useState<string[]>([]);
 
   useEffect(() => {
-    setPossibleWords(calculatePossibleWords(words));
+    setPossibleAnswers(getPossibleSolutions(words));
+    setOptimalAnswers(getOptimalAnswers(words));
 
   }, [words]);
   
@@ -50,8 +53,8 @@ function App() {
     <div className="App">
       <Words updateWords={(newWords: Word[]) => setWords(newWords)} words={words}/>
       <CustomEntry addWord={(word: string) => setWords([...words, new Word(word)])}/>
-      {possibleWords.length} possible answers
-      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={_.take(possibleWords, 15)} />
+      {possibleAnswers.length} possible answers
+      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={_.take(optimalAnswers, 5)} />
       <button onClick={() => {setWords([])}}>reset</button>
     </div>
   );
