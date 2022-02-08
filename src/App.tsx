@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import CustomEntry from './components/CustomEntry';
 import PossibleWords from './components/PossibleWords';
 import Words from './components/Words';
+import _ from 'lodash';
 import { calculatePossibleWords } from './services/brain';
 
 export enum LetterStatus{
@@ -49,7 +50,8 @@ function App() {
     <div className="App">
       <Words updateWords={(newWords: Word[]) => setWords(newWords)} words={words}/>
       <CustomEntry addWord={(word: string) => setWords([...words, new Word(word)])}/>
-      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={possibleWords} />
+      {possibleWords.length} possible answers
+      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={_.take(possibleWords, 15)} />
       <button onClick={() => {setWords([])}}>reset</button>
     </div>
   );

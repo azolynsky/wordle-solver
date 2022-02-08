@@ -59,7 +59,7 @@ export function calculatePossibleWords(words: Word[]){
   weightedPossibleWords = _.orderBy(weightedPossibleWords, w => w.weight, 'desc')
   
   returnList = weightedPossibleWords.map(wps => wps.word);
-  returnList = _.take(returnList, 15);
+  //returnList = _.take(returnList, 15);
 
   return returnList
 }
