@@ -46,7 +46,6 @@ function App() {
   useEffect(() => {
     setPossibleAnswers(getPossibleSolutions(words));
     setOptimalAnswers(getOptimalAnswers(words));
-
   }, [words]);
   
   return (
@@ -54,7 +53,7 @@ function App() {
       <Words updateWords={(newWords: Word[]) => setWords(newWords)} words={words}/>
       <CustomEntry addWord={(word: string) => setWords([...words, new Word(word)])}/>
       {possibleAnswers.length} possible answers
-      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={_.take(optimalAnswers, 5)} />
+      <PossibleWords onClick={(word: string) => setWords([...words, new Word(word)])} words={_.take(optimalAnswers, possibleAnswers.length <= 1 ? possibleAnswers.length : 5)} />
       <button onClick={() => {setWords([])}}>reset</button>
     </div>
   );

@@ -32,17 +32,25 @@ function weighMatrix(words: string[]): WeightedMatrix{
         if (alphabetLetter) alphabetLetter.weight++;
       }
     })
-  
   })
 
-  debugger;
+  // critical: we want to try to get the weight to be as close to 99% as possible.
+  // a certain letter being featured every time is just as useless as it being featured 0 times.
+  _.forEach(weightedMatrix, letterPosition => {
+    _.forEach(letterPosition, letterWeight => {
+      if (letterWeight.weight === words.length){
+        // this must be positive or the correct answer will end up having value 0.
+        letterWeight.weight = .1;
+      }
+    })
+  })
+
   return weightedMatrix;
 }
 
 const convertMatrixToWeightedAlphabet = (matrix: WeightedMatrix) => {
   let returnAlphabet = [] as WeightedAlphabet;
   let concatenatedWeights = [...matrix[0], ...matrix[1], ...matrix[2], ...matrix[3], ...matrix[4]];
-
 
   _.forEach(concatenatedWeights, matrixWeight => {
     let alphabetWeight = _.find(returnAlphabet, alphabetWeight => alphabetWeight.letter === matrixWeight.letter)
