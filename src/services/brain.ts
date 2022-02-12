@@ -1,4 +1,5 @@
-import { Word } from "../App";
+import { LetterStatus, Word } from "../App";
+
 import _ from "lodash";
 import { getPossibleSolutions } from "./solutionService";
 import wordList from "./wordList.json";
@@ -6,9 +7,10 @@ import wordList from "./wordList.json";
 type WeightedAlphabet = WeightedLetter[];
 type WeightedMatrix = WeightedAlphabet[];
 
-// this must be positive or the correct answer will end up having value 0.
+// this must be positive or the correct answer will end up having weight 0.
 const KNOWN_LETTER_WEIGHT = 0.1;
 const IGNORE_KNOWN_LETTERS = true;
+const IGNORE_CONTAINS_LETTERS = true;
 
 type WeightedLetter = {
   letter: string;
@@ -23,7 +25,7 @@ export function getOptimalAnswers(words: Word[]): string[] {
   // it's best to guess one of them and maybe get lucky.
   if (possibleSolutions.length === 2) return possibleSolutions;
 
-  let weightedAnswers = weighAnswers(possibleSolutions);
+  let weightedAnswers = weighAnswers(possibleSolutions, words);
   let sortedAnswers = _.orderBy(weightedAnswers, (wa) => wa.weight, "desc");
   return sortedAnswers.map((wa) => wa.word);
 }
@@ -52,18 +54,6 @@ function weighMatrix(words: string[]): WeightedMatrix {
     });
   });
 
-  if (IGNORE_KNOWN_LETTERS) {
-    // critical: we want to try to get the weight to be as close to 99% as possible.
-    // a certain letter being featured every time is just as useless as it being featured 0 times.
-    _.forEach(weightedMatrix, (letterPosition) => {
-      _.forEach(letterPosition, (letterWeight) => {
-        if (letterWeight.weight === words.length) {
-          letterWeight.weight = KNOWN_LETTER_WEIGHT;
-        }
-      });
-    });
-  }
-
   return weightedMatrix;
 }
 
@@ -85,14 +75,7 @@ const convertMatrixToWeightedAlphabet = (matrix: WeightedMatrix) => {
     if (!alphabetWeight) {
       returnAlphabet = [...returnAlphabet, matrixWeight];
     } else {
-      if (
-        alphabetWeight.weight === KNOWN_LETTER_WEIGHT ||
-        matrixWeight.weight === KNOWN_LETTER_WEIGHT
-      ) {
-        alphabetWeight.weight = KNOWN_LETTER_WEIGHT;
-      } else {
-        alphabetWeight.weight += matrixWeight.weight;
-      }
+      alphabetWeight.weight += matrixWeight.weight;
     }
   });
 
@@ -104,11 +87,49 @@ type WeightedWord = {
   weight: number;
 };
 
-function weighAnswers(possibleSolutions: string[]): WeightedWord[] {
+function weighAnswers(
+  possibleSolutions: string[],
+  previousAnswers: Word[]
+): WeightedWord[] {
   let possibleAnswers = wordList;
 
   const weightedMatrix = weighMatrix(possibleSolutions);
   const weightedAlphabet = convertMatrixToWeightedAlphabet(weightedMatrix);
+
+  if (IGNORE_KNOWN_LETTERS) {
+    // critical: we want to try to get the weight to be as close to 99% as possible, but not 100%.
+    // a certain letter being featured every time is just as useless as it being featured 0 times.
+    _.forEach(weightedAlphabet, (letter) => {
+      if (
+        _.some(previousAnswers, (pa) =>
+          _.some(
+            pa.letters,
+            (l) =>
+              letter.letter === l.letter && l.status === LetterStatus.correct
+          )
+        )
+      ) {
+        letter.weight = KNOWN_LETTER_WEIGHT;
+      }
+    });
+  }
+
+  if (IGNORE_CONTAINS_LETTERS) {
+    // critical: we want to try to get the weight to be as close to 99% as possible, but not 100%.
+    // a certain letter being featured every time is just as useless as it being featured 0 times.
+    _.forEach(weightedAlphabet, (letter) => {
+      if (
+        _.some(previousAnswers, (pa) =>
+          _.some(
+            pa.letters,
+            (l) => letter.letter === l.letter && l.status === LetterStatus.used
+          )
+        )
+      ) {
+        letter.weight = KNOWN_LETTER_WEIGHT;
+      }
+    });
+  }
 
   let weightedAnswers: WeightedWord[] = [];
 

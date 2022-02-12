@@ -1,10 +1,10 @@
 import { LetterStatus, Word } from "../App";
 
 import _ from 'lodash';
-import wordList from './wordList.json'
+import solutionList from './solutionList.json'
 
 export function getPossibleSolutions(words: Word[]): string[]{
-  let returnList = [...wordList];
+  let returnList = [...solutionList];
 
   let excludedLetters: string[] = []
   let mustContainLetters: string[] = []
